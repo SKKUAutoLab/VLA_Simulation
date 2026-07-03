@@ -1,0 +1,32 @@
+# ── ROS2 / colcon 빌드 산출물 ──
+build/
+install/
+log/
+
+# ── 파이썬 캐시 ──
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# ── 모델 가중치 / 어댑터 (대용량, git 부적합) ──
+*.pt
+*.pth
+*.onnx
+*.safetensors
+sim.pt
+lora_pipeline/*_adapter*/
+lora_pipeline/adapter/
+
+# ── 데이터셋 / 수집 이미지 / 캐시 (대용량) ──
+lora_pipeline/dataset/
+lora_pipeline/dataset_*/
+lora_pipeline/manual_demos/
+lora_pipeline/*_cache.pt
+eval_results/
+
+# ── 기타 산출물 ──
+*.zip
+*.bag
+*.mp4
+diag_*.py
+eval_resolution.py
