@@ -3,6 +3,11 @@
 "ROS 2 기반 자율주행 차량 설계 및 구현" 교재의 주행 시뮬레이션 환경에, **VLA(Vision-Language-Action)**
 자율주행 스택을 추가한 워크스페이스입니다.
 
+> 💻 **노트북(GPU)이 없다면 → 브라우저에서 원클릭 실습**
+> [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/SKKUAutoLab/VLA_Simulation/blob/main/colab/VLA_Simulation_Colab.ipynb)
+> 위 뱃지 클릭 → **런타임 유형을 T4 GPU로 변경 → 런타임 → 모두 실행**. 설치·모델 다운로드·주행이 자동 진행됩니다.
+> (사전 학습 산출물은 HuggingFace `hoonsy/VLA_Simulation-pretrained`에서 자동 import → 데이터 수집·학습 생략)
+
 이 README는 두 부분으로 구성됩니다.
 
 - **Part 1 — 시뮬레이터 기본 사용법** : 설치 · 빌드 · 고전(비-VLA) 주행 실행
