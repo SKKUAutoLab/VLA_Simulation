@@ -282,16 +282,29 @@ python3 lora_pipeline/train_vla_lora.py
 
 ## 2-7. [6단계] 학습한 모델로 자율주행
 
+> ⏩ **데이터 수집·학습을 건너뛰고 바로 주행하려면** (사전 학습 헤드 import):
+> ```bash
+> cd ~/ros2_autonomous_vehicle_simulation
+> bash lora_pipeline/setup_pretrained.sh   # HuggingFace hoonsy/VLA_Simulation-pretrained 에서 자동 다운로드
+> ```
+> 이러면 2-4~2-6(수집·학습) 없이 아래 주행으로 바로 넘어갈 수 있습니다. (자세히: `PRETRAINED.md`)
+
 **터미널 A의 시뮬레이터는 끄고**, VLA 주행 launch를 실행합니다. 이 launch 하나가
-Gazebo · 차량 스폰 · 제어 브리지 · **VLA 주행 노드**를 모두 띄웁니다.
+Gazebo · 차량 스폰 · 제어 브리지 · **VLA 주행 노드 · 명령 GUI**를 모두 띄웁니다.
 
 ```bash
 cd ~/ros2_autonomous_vehicle_simulation
 sudo killall -9 gazebo gzserver gzclient 2>/dev/null
 source install/setup.bash
 ros2 launch lora_pipeline/vla_drive.launch.py
-# 선택 인자:  brain:=false (Qwen 브레인 노드 끄기)  gui:=false (GUI 끄기)  gzclient:=true (3D 창 보기)
+# 선택 인자:  brain:=false (Qwen 브레인 노드 끄기)  gui:=false (GUI 끄기)  gzclient:=false (3D 창 끄기, 기본 켜짐)
 ```
+
+**같이 뜨는 명령 GUI (`vla_gui.py`)** — 마우스로 실습 환경을 바꿀 수 있습니다:
+- 🚧 **장애물차량 OFF/ON** 토글 — 차선 위 장애물 스폰/삭제 (라이다 정지·회피 확인용)
+- 🚦 **신호등 OFF/ON** 토글 — 신호등 스폰/삭제 (정지 동작 확인용)
+- **빠른 명령 버튼**(1차선/2차선/정지 등) + **자연어 입력창**(브레인 노드 필요) + 로그
+- GUI 없이 헤드리스로 돌리려면 `gui:=false`.
 
 - 주행 노드(`vla_lora_drive_node.py`)는 기본적으로 **비전 고정 + `vla_lora_head_fast.pt`** 를 로드합니다.
 - (B)에서 만든 **LoRA 어댑터**로 주행하려면 환경변수로 켜세요:
