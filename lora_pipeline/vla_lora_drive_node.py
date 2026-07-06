@@ -31,6 +31,11 @@ LOOKAHEAD = float(os.environ.get("PP_LD", "0.55"))
 STEER_EMA = float(os.environ.get("STEER_EMA", "0.5"))
 CRUISE = int(os.environ.get("CRUISE", "70"))
 CRUISE_TURN = int(os.environ.get("CRUISE_TURN", "50"))
+REV_SPEED = int(os.environ.get("REV_SPEED", "40"))          # 후진 속도(음수로 발행)
+REV_DIST = float(os.environ.get("REV_DIST", "2.0"))         # 후진 거리(m) 후 자동 정지
+REV_MAX_SECS = float(os.environ.get("REV_MAX_SECS", "5.0")) # 후진 시간 상한(odom 미수신 안전장치)
+SPEED_SLOW = float(os.environ.get("SPEED_SLOW", "0.6"))     # 서행 배율
+SPEED_FAST = float(os.environ.get("SPEED_FAST", "1.3"))     # 빠르게 배율
 CHANGE_SECS = float(os.environ.get("CHANGE_SECS", "12.0"))  # 차선변경 전이 지속시간(저속 2.8m 횡단)
 CHANGE_LD = float(os.environ.get("CHANGE_LD", "1.8"))       # 전이 중 lookahead(더 멀리=B쪽 WP 조준→강한 변경)
 NTOK = 70
@@ -92,6 +97,8 @@ class VLALoraNode(Node):
         self.last_scan = None; self._last_avoid = 0.0; self._avoiding = False  # 라이다 회피용
         self._avoid_from = None; self._avoid_from_t = 0.0  # 방금 비켜난 차선(되돌아가기 금지)
         self.steering = 0; self.speed = 0; self.steer_f = 0.0
+        self.reversing = False; self.rev_from = None    # 후진 모드 + 시작위치(거리측정)
+        self.speed_scale = 1.0                          # 속도 조절 배율(서행/빠르게)
         self.inferring = False; self.latest = None
         self.lock = threading.Lock()
         self.cl = {k: [(float(a), float(b)) for a, b in json.load(open(p))["centerline_world"]]
@@ -255,6 +262,22 @@ class VLALoraNode(Node):
 
     def _cmd(self, msg):
         t = msg.data.lower()
+        # 속도 조절(지속 배율) — 다른 주행 명령과 함께 와도 배율만 갱신하고 계속 진행(return 안 함).
+        if any(k in t for k in ("천천히", "서행", "슬로우", "slow")):
+            self.speed_scale = SPEED_SLOW; self.get_logger().info(f"[lora] 🐢 서행 ({SPEED_SLOW}x)")
+        elif any(k in t for k in ("빨리", "빠르게", "전속", "fast")):
+            self.speed_scale = SPEED_FAST; self.get_logger().info(f"[lora] 🐇 빠르게 ({SPEED_FAST}x)")
+        elif any(k in t for k in ("보통 속도", "기본 속도", "원래 속도", "normal speed")):
+            self.speed_scale = 1.0; self.get_logger().info("[lora] 속도 기본(1.0x)")
+        # 후진 — 짧게 뒤로 후 자동 정지. '역방향'(트랙 방향전환)과 구분.
+        if any(k in t for k in ("후진", "뒤로", "back up", "backward")) and \
+                not any(k in t for k in ("역방향", "반대로", "거꾸로")):
+            with self.lock:
+                self.reversing = True; self.rev_from = self.cur_p; self.rev_start = time.time()
+                self.active = False; self.paused = False; self.target_laps = 0
+                self.approach_lane = None; self.direct_target = None
+                self.stop_at_idx = None; self.stop_name = None; self._last = None
+            self.get_logger().info(f"[lora] ◀ 후진 시작 (뒤로 {REV_DIST}m 후 정지)"); return
         # 일시정지/재개 — 랩 진행상태 보존(빨간불 등 자율 정지용). 사용자 '멈춰'와 구분.
         if any(k in t for k in ("일시정지", "pause", "잠깐", "hold")):
             with self.lock:
@@ -297,6 +320,7 @@ class VLALoraNode(Node):
             with self.lock:
                 self.active = False; self.target_laps = 0; self._last = None; self.paused = False
                 self.stop_at_idx = None; self.stop_name = None; self.direct_target = None
+                self.reversing = False      # 후진 중이면 취소
             self.get_logger().info("[lora] 정지"); return
         # 복구: 길잃음/역방향 시 가장 가까운 차선에 정방향으로 스냅(아커만은 U턴 불가 → 텔레포트)
         if any(k in t for k in ("복구", "리셋", "reset", "제자리")):
@@ -454,6 +478,20 @@ class VLALoraNode(Node):
                     self.active = False; self.get_logger().info(f"✅ {self.target_laps}바퀴 완료 — 정지")
 
     def _pub(self):
+        # 후진 모드: 라이다(전방) 무시하고 뒤로. REV_DIST 만큼 물러나면 자동 정지.
+        if self.reversing:
+            with self.lock:
+                moved = (self.cur_p is not None and self.rev_from is not None
+                         and math.dist(self.cur_p, self.rev_from) >= REV_DIST)
+                timeout = (time.time() - getattr(self, "rev_start", 0)) >= REV_MAX_SECS
+                done = moved or timeout
+                if done:
+                    self.reversing = False
+                st, sp = (0, 0) if done else (0, -REV_SPEED)
+            if done:
+                self.get_logger().info("[lora] ◀ 후진 완료 → 정지")
+            m = MotionCommand(); m.steering = int(st); m.left_speed = int(sp); m.right_speed = int(sp)
+            self.pub.publish(m); return
         with self.lock:
             # 전이(lane 2/3): 목적차선 도달 즉시 복귀(오버슈트 방지), 아니면 시간초과 시 복귀
             if self.lane in (2, 3):
@@ -470,6 +508,7 @@ class VLALoraNode(Node):
             if self.lidar_block:          # 전방 라이다 장애물 → 비상정지(조향유지, 속도0)
                 # 단, 회피 차선변경 중(목표차선 트임 확인됨)엔 저속 전진 허용 → 옆으로 빠져 통과(교착 방지)
                 sp = AVOID_SPEED if (self._avoiding and self.approach_lane is not None) else 0
+            sp = int(sp * self.speed_scale)   # 속도 조절 배율(서행/빠르게) 적용
             kl = self.keep_lane
         m = MotionCommand(); m.steering = int(st); m.left_speed = int(sp); m.right_speed = int(sp)
         self.pub.publish(m)

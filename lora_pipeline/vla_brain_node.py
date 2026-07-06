@@ -115,6 +115,13 @@ class BrainNode(Node):
         if any(k in t for k in LM_KEYS) and any(k in t for k in ("직진", "차선 무시", "차선무시", "가로질러", "straight to", "곧장")):
             self.get_logger().info(f"[언어] '{msg.data}' → (직진 직통) {msg.data}")
             self.pub.publish(String(data=msg.data)); return
+        # 후진·속도조절: LANG 문법(go/stop/change) 밖 동작 → 원문 직통(drive 노드 네이티브 파싱)
+        if any(k in t for k in ("후진", "뒤로", "back up", "backward")) and "역방향" not in t:
+            self.get_logger().info(f"[언어] '{msg.data}' → (후진 직통)")
+            self.pub.publish(String(data=msg.data)); return
+        if any(k in t for k in ("천천히", "서행", "빨리", "빠르게", "전속", "slow down", "faster")):
+            self.get_logger().info(f"[언어] '{msg.data}' → (속도조절 직통)")
+            self.pub.publish(String(data=msg.data)); return
         try:
             resp = self._ask(LANG_SYS + "\n\n명령: " + msg.data, with_img=False)
             la = re.search(r'LANE=(\w+)', resp); ac = re.search(r'ACT=(\w+)', resp); lp = re.search(r'LAPS=(\w+)', resp)
