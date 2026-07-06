@@ -3,10 +3,13 @@
 "ROS 2 기반 자율주행 차량 설계 및 구현" 교재의 주행 시뮬레이션 환경에, **VLA(Vision-Language-Action)**
 자율주행 스택을 추가한 워크스페이스입니다.
 
-> 💻 **노트북(GPU)이 없다면 → 브라우저에서 원클릭 실습**
+> 💻 **노트북(GPU)이 없다면 → 브라우저에서 원클릭 VLA 데모**
 > [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/SKKUAutoLab/VLA_Simulation/blob/main/colab/VLA_Simulation_Colab.ipynb)
-> 위 뱃지 클릭 → **런타임 유형을 T4 GPU로 변경 → 런타임 → 모두 실행**. 설치·모델 다운로드·주행이 자동 진행됩니다.
-> (사전 학습 산출물은 HuggingFace `hoonsy/VLA_Simulation-pretrained`에서 자동 import → 데이터 수집·학습 생략)
+> 위 뱃지 클릭 → **런타임 유형을 T4 GPU로 변경 → 런타임 → 모두 실행**.
+> 학습된 VLA 모델이 **카메라 사진 → 웨이포인트 경로 → 조향**을 예측하는 과정을 시각화합니다
+> (사전 학습 헤드는 HuggingFace `hoonsy/VLA_Simulation-pretrained`에서 자동 import → 데이터 수집·학습 생략).
+> ⚠️ 무거운 ROS2·Gazebo 설치 없이 **모델 추론만** 실행 — Colab(Python 3.12)에서 안정적으로 동작합니다.
+> 실시간 Gazebo 주행 화면은 로컬(GPU 노트북)에서 `vla_drive.launch.py`로 확인하세요.
 
 이 README는 두 부분으로 구성됩니다.
 
