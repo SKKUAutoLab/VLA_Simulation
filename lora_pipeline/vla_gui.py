@@ -167,14 +167,18 @@ class MainWindow(QMainWindow):
                 if kind == "obs":
                     import os
                     script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "spawn_lane_obs.py")
-                    if on:
-                        # 둘 다: 원래 장애물(차도+주차) + 차도 추가 장애물
-                        subprocess.run(["ros2", "run", "simulation_pkg", "load_obstable_car_node"], timeout=150, capture_output=True)
-                        subprocess.run(["python3", script, "on"], timeout=60, capture_output=True)
-                    else:
+
+                    def _del_original():   # 원본 장애물(obstacle1..5) 삭제 — 중복 /ob1 스폰 방지
                         for e in ("obstacle1", "obstacle2", "obstacle3", "obstacle4", "obstacle5"):
                             subprocess.run(["ros2", "service", "call", "/delete_entity",
                                             "gazebo_msgs/srv/DeleteEntity", f"{{name: '{e}'}}"], timeout=15, capture_output=True)
+                    if on:
+                        # 추월/회피 데모용 소수 장애물만 스폰(원본 5대 덤프 제거 → 트랙이 안 막힘).
+                        # 재토글 안전: 스폰 스크립트가 내부에서 먼저 삭제(멱등). 원본 잔재도 정리.
+                        _del_original()
+                        subprocess.run(["python3", script, "on"], timeout=60, capture_output=True)
+                    else:
+                        _del_original()
                         subprocess.run(["python3", script, "off"], timeout=60, capture_output=True)
                 else:
                     if on:

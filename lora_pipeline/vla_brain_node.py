@@ -122,6 +122,9 @@ class BrainNode(Node):
         if any(k in t for k in ("천천히", "서행", "빨리", "빠르게", "전속", "slow down", "faster")):
             self.get_logger().info(f"[언어] '{msg.data}' → (속도조절 직통)")
             self.pub.publish(String(data=msg.data)); return
+        if any(k in t for k in ("추월", "앞지르", "앞질러", "overtake")):
+            self.get_logger().info(f"[언어] '{msg.data}' → (추월 직통)")
+            self.pub.publish(String(data=msg.data)); return
         try:
             resp = self._ask(LANG_SYS + "\n\n명령: " + msg.data, with_img=False)
             la = re.search(r'LANE=(\w+)', resp); ac = re.search(r'ACT=(\w+)', resp); lp = re.search(r'LAPS=(\w+)', resp)
