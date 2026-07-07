@@ -421,6 +421,15 @@ ros2 launch simulation_pkg full_mission_sim.launch.py use_vla:=false   # 고전 
    Part 2의 주행 노드가 쓰는 것은 "웨이포인트 헤드" 방식(`vla_*head*.pt`). 서로 다른 파이프라인입니다.
 6. **VLA 노드는 `torch`/`transformers`/`peft`가 필요합니다.** `install.sh`에 없으니 Part 1의 안내대로 별도 설치.
 7. **`run_sim.sh`는 시뮬레이터(차+sender)만 띄웁니다.** VLA 주행까지 한 번에 하려면 `vla_drive.launch.py`를 쓰세요.
+8. **VLA 주행은 일부러 소프트웨어 렌더링을 씁니다 (카메라 지연 방지).**
+   Part 1의 고전 주행 launch(`driving_sim`/`mission_sim` 등)는 `__NV_PRIME_RENDER_OFFLOAD=1`로 Gazebo를
+   NVIDIA GPU에 렌더합니다. 하지만 **하이브리드 GPU(내장+NVIDIA) 노트북에서는 GPU 렌더 시 카메라 이미지를
+   GPU→CPU로 되읽는(readback) 과정이 느려**, 매 프레임 이미지를 쓰는 VLA 폐루프에 지연이 쌓입니다.
+   그래서 `vla_drive.launch.py`는 **PRIME offload를 켜지 않고 소프트웨어 렌더(llvmpipe)를 유지**합니다
+   (해당 launch 주석 참고). 추가로 카메라 구독을 **BEST_EFFORT + depth=1**로 두고, **추론 중에는 새 프레임을
+   드롭**해 오래된 프레임이 밀리지 않게 합니다 — 세 조치로 카메라→추론→제어 루프의 지연을 억제합니다.
+   > 만약 실시간 렌더가 필요하고 GPU가 단일(데스크톱 등)이라면, VLA launch에도 PRIME 환경변수를 넣어
+   > 시험해 볼 수 있으나, 노트북에서는 지연이 늘 수 있으니 권장하지 않습니다.
 
 ---
 
