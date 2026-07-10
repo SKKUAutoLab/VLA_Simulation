@@ -90,7 +90,7 @@ sudo killall -9 gazebo gzserver gzclient; ros2 launch simulation_pkg parking_sim
 | `mission_control_pkg` | 미션 태스크 매니저(`task_manager_node`) |
 | `simulation_pkg` | Gazebo world/모델 스폰, launch, sim 미러 노드, **`sim_simulation_sender_node`**(제어→cmd_vel 브리지) |
 | `debug_pkg` | 시각화(`path_visualizer_node`, `yolov8_visualizer_node`), 이미지 저장 |
-| `gui_pkg` | PySide6 GUI, GT 어노테이션 도구(`gt_annotator` 등) |
+| `gui_pkg` | PySide6 미션 컨트롤 GUI |
 | `qwen_vl_pkg` | Qwen3-VL 기반 VLA 주행 노드(`vla_brain_node` 등) |
 
 **핵심 제어 메시지** `interfaces_pkg/msg/MotionCommand`
@@ -433,16 +433,14 @@ ros2 launch simulation_pkg full_mission_sim.launch.py use_vla:=false   # 고전 
 
 ---
 
-# 부록 A. 트랙 차선 GT 시각화
+# 부록 A. 트랙 차선 GT 만들기 · 시각화
 
-VLA 학습에 쓰이는 **트랙 차선 중심선 Ground-Truth(GT)** 데이터를 눈으로 확인하는 방법입니다.
+VLA 학습에 쓰이는 **트랙 차선 중심선 Ground-Truth(GT)** 데이터를 만들고 눈으로 확인하는 방법입니다.
 (Part 2의 [4단계 `build_wp_from_manual.py`]가 이 GT 파일들을 웨이포인트 라벨 생성에 사용합니다.)
-**① 좌표 평면 플롯**, **② 트랙 이미지 위 오버레이**, **③ 실제 GUI 창 스크린샷(중심선 / 도로·차선 마스킹)**
-세 가지 방식이 있습니다.
 
-## A-0. 차선 GT 만들기 — `lane_picker` (학생용 · 권장)
+## A-0. 차선 GT 만들기 — `lane_picker` (권장)
 
-복잡한 `gt_annotator` 대신, 클릭만으로 차선 GT를 만드는 간단 도구입니다.
+클릭만으로 차선 GT를 만드는 간단한 도구입니다.
 
 ```bash
 python3 tools/lane_picker.py
@@ -457,7 +455,6 @@ python3 tools/lane_picker.py
 
 > **연동:** 저장 형식(`centerline_world` 720점)·경로·좌표 변환이 기존과 동일하여, 저장 즉시
 > `generate_wp_data.py`(학습 데이터)와 주행 노드(`vla_lora_drive_node`)에 **바로 반영**됩니다.
-> 세밀한 도로 자동검출·마스크 편집이 필요하면 `gt_annotator`(고급)를 사용하세요.
 
 ## A-1. 관련 파일 위치
 
@@ -469,18 +466,7 @@ python3 tools/lane_picker.py
 | `track_gt_lane1_demo.json` | 1차선(inner) 데모 (720점) | `centerline_world` |
 | `track_gt_outward_centerline.json` 등 | 기타 차선/중심선 GT | 파일별 상이 |
 
-> **주의:** GUI(`gt_annotator`)는 `centerline_pixels`(픽셀 좌표)를 직접 읽습니다.
-> `*_demo.json` 처럼 `centerline_world`(월드 좌표)만 있는 파일은 `world_to_pixel()` 변환이 필요합니다.
-
-### GT를 그리는 원본 코드 (`src/gui_pkg/gui_pkg/`)
-| 파일 | 위치 | 역할 |
-|------|------|------|
-| `gt_annotator.py` | 라인 1250~1360 (`Canvas.paintEvent`) | GUI 캔버스에 도로/차선 마스크·중심선·수동점 렌더링 |
-| `gt_annotator.py` | 라인 1323~1350 | 1차선(청록)·2차선(주황)·수동(빨강) 중심선 점 |
-| `track_map_widget.py` | 라인 225~240 (`_draw_centerline`) | 중심선을 노란 점선 + 점으로 표시 |
-| `gt_extractor.py` | 라인 209~248 (`visualize_extraction`) | OpenCV 도로 마스크 오버레이 + 중심선 점 |
-
-### 좌표 변환식 (`gt_annotator.py`, `IMG_W=1180.0`, `IMG_H=884.0`)
+### 좌표 변환식 (`lane_picker.py`, `IMG_W=1180.0`, `IMG_H=884.0`)
 ```python
 def pixel_to_world(px, py):
     return -20.237 + (py / IMG_H) * 40.473,  -26.915 + (px / IMG_W) * 53.83
@@ -494,9 +480,9 @@ def world_to_pixel(wx, wy):
 src/simulation_pkg/models/race_track/materials/textures/track.png   (1181 x 885)
 ```
 
-## A-2. 실행 방법
+## A-2. GT 시각화
 
-시각화 스크립트는 **[`tools/`](tools/)** 에 정리되어 있습니다(사용법: [`tools/README.md`](tools/README.md)).
+만든 GT를 그림으로 확인하는 스크립트는 **[`tools/`](tools/)** 에 있습니다(사용법: [`tools/README.md`](tools/README.md)).
 모든 명령은 워크스페이스 루트에서 실행합니다.
 
 ```bash
@@ -505,36 +491,9 @@ python3 tools/gt_render.py ~/track_gt_manual.json -o /tmp/gt_render.png
 
 # (B) 트랙 이미지 위 오버레이 — OpenCV
 python3 tools/gt_overlay.py ~/track_gt_manual.json -o /tmp/gt_overlay.png
-
-# (C) 실제 GUI 창 스크린샷 (헤드리스면 DISPLAY=:1 QT_QPA_PLATFORM=xcb 필요)
-DISPLAY=:1 QT_QPA_PLATFORM=xcb python3 tools/gt_gui_shot.py ~/track_gt_manual.json -o /tmp/gt_gui.png
-#   도로/차선 마스킹(1차선 빨강 / 2차선 파랑)까지 그리려면 --mask 추가:
-DISPLAY=:1 QT_QPA_PLATFORM=xcb python3 tools/gt_gui_shot.py ~/track_gt_manual.json --mask -o /tmp/gt_mask.png
 ```
 
 - 입력 GT는 생략 시 `~/track_gt_manual.json`. `centerline_pixels`가 없으면 `centerline_world`를 자동 변환.
-- `gt_gui_shot.py`는 `src/gui_pkg/gui_pkg/gt_annotator.py`를 import하므로 저장소 안에서 실행해야 합니다.
-
-> **함정 노트:** `gt_annotator`의 `set_show_lane()` 인자는 `"both" | "inner" | "outer"` 문자열입니다.
-> `True` 같은 값을 넣으면 마스크가 렌더링되지 않습니다 (실제로 겪은 버그).
-
-### (D) 어노테이터 GUI 직접 실행 (ROS 실행자)
-```bash
-cd ~/VLA_simulation
-source install/local_setup.bash
-ros2 run gui_pkg gt_annotator      # 트랙 GT 어노테이터
-ros2 run gui_pkg gt_extractor      # 도로 세그멘테이션 기반 중심선 추출
-```
-
-## A-3. 도로/차선 마스킹 파이프라인 (참고)
-
-`gt_annotator.py`의 `Worker`(QThread) 처리 순서:
-1. **도로 마스크** — `detect_road_by_color()`(색상 피커) 또는 `detect_road_by_v()`(V 범위)
-2. **내부 타원 경계 검출** — `find_ring_boundary()` (주차장 영역 제외용)
-3. **차선 분리** — `split_lanes_polar()` 극좌표 기반 inner/outer 분리
-4. **중심선 추출** — `polar_centerline()` (720 bins + 스무딩)
-
-결과는 캔버스에 1차선 빨강 / 2차선 파랑 반투명 마스크로 오버레이됩니다.
 
 ---
 

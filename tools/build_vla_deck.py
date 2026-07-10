@@ -461,7 +461,7 @@ def build(prs):
         " │   ├─ decision_making_pkg/   # 경로·모션 계획 (고전)",
         " │   ├─ simulation_pkg/        # Gazebo world·모델·launch",
         " │   ├─ qwen_vl_pkg/           # Qwen3-VL 상위 VLA 노드",
-        " │   └─ gui_pkg/               # GUI·GT 어노테이터",
+        " │   └─ gui_pkg/               # 미션 컨트롤 GUI",
         " ├─ lora_pipeline/             # ★ VLA 학습·주행 스크립트 (핵심)",
         " └─ tools/                     # GT 시각화 도구",
     ], top=1.5, size=13.5, height=4.6)
@@ -703,7 +703,7 @@ def build(prs):
     body_box(s, [
         ("GT(Ground-Truth) = 트랙 차선 중심선의 '정답' 좌표. 웨이포인트 라벨 생성의 기준", 0),
         ("파일 위치(~/): track_gt_manual.json(픽셀+월드), track_gt_*_demo.json(월드)", 1),
-        ("두 좌표계: 픽셀(이미지) ↔ 월드(미터). 변환식(gt_annotator.py):", 0),
+        ("두 좌표계: 픽셀(이미지) ↔ 월드(미터). 변환식(lane_picker.py):", 0),
     ], 0.42, 1.35, 12.4, 1.6)
     code_box(s, [
         "IMG_W, IMG_H = 1180.0, 884.0",
@@ -713,18 +713,17 @@ def build(prs):
     picture(s, f"{IMG}/track_gt_lane0_demo_render.png", 5.0, 4.5, height=2.5)
     note(s, "▲ 월드좌표 평면에 GT 중심선을 그린 예 (720점, 닫힌 루프)", left=0.6, top=5.4, color=GREY)
 
-    s = add_content(prs, "tools/ — GT 시각화 3종")
+    s = add_content(prs, "차선 GT 만들기 & 시각화")
     code_box(s, [
+        "# 차선 GT 만들기 — 클릭으로 차선 면을 칠하고 중앙선 자동 추출",
+        "python3 tools/lane_picker.py",
         "# (A) 월드좌표 평면 플롯",
         "python3 tools/gt_render.py  ~/track_gt_manual.json -o /tmp/gt_render.png",
         "# (B) 트랙 이미지 위 오버레이",
         "python3 tools/gt_overlay.py ~/track_gt_manual.json -o /tmp/gt_overlay.png",
-        "# (C) 실제 GUI 창 스크린샷 (--mask 시 도로/차선 마스킹)",
-        "DISPLAY=:1 QT_QPA_PLATFORM=xcb python3 tools/gt_gui_shot.py --mask -o /tmp/gt_mask.png",
     ], top=1.5, size=12, height=2.4)
-    picture(s, f"{IMG}/track_gt_lane0_overlay.png", 1.1, 4.15, height=2.35)
-    picture(s, f"{IMG}/track_gt_manual_mask_screenshot.png", 7.3, 4.15, height=2.35)
-    note(s, "왼쪽: track.png 위 GT 오버레이     |     오른쪽: GUI 도로/차선 마스킹(1차선 빨강·2차선 파랑)",
+    picture(s, f"{IMG}/track_gt_lane0_overlay.png", 5.0, 4.15, height=2.35)
+    note(s, "▲ track.png 위 GT 중심선 오버레이 (1차선 빨강·2차선 파랑)",
          top=6.65, color=GREY)
 
     # ── SECTION 8 ──────────────────────────────────────────────────────────
@@ -753,7 +752,6 @@ def build(prs):
         ("'LoRA'가 두 종류: train_lora.py(글자조향) vs train_vla_lora.py(웨이포인트 헤드) — 별개", 0),
         ("VLA 노드는 torch/transformers/peft 필요 (install.sh 에 없음 → 별도 설치)", 0),
         ("teleop_keyboard 의 'c'키 미구현 → 리셋은 x", 0),
-        ("gt_annotator.set_show_lane() 인자는 문자열 'both'/'inner'/'outer' (True 넣으면 안 그려짐)", 0),
     ])
 
     s = add_content(prs, "정리 & 참고 문서")

@@ -19,7 +19,6 @@ setup(
             'mission_gui_node = gui_pkg.mission_gui_node:main',
             'debug_gui_node   = gui_pkg.debug_gui_node:main',
             'gt_extractor     = gui_pkg.gt_extractor:main',
-            'gt_annotator          = gui_pkg.gt_annotator:main',
             'parking_gt_extractor  = gui_pkg.parking_gt_extractor:main',
         ],
     },
