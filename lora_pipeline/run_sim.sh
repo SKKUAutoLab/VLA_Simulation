@@ -3,7 +3,7 @@
 # 사용: bash run_sim.sh        (gzclient 3D뷰도 원하면: GUI=1 bash run_sim.sh)
 # 종료: Ctrl+C (자식 프로세스 정리)
 set -e
-WS=/home/autolab/ros2_autonomous_vehicle_simulation
+WS=/home/autolab/VLA_simulation
 cd "$WS"
 
 source /opt/ros/humble/setup.bash 2>/dev/null

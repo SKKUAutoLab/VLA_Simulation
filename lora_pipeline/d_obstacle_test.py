@@ -12,7 +12,7 @@ MODE = sys.argv[1] if len(sys.argv) > 1 else "obstacle"
 MODEL = "redlight" if MODE == "redlight" else "hatchback_red"
 SDF = os.path.expanduser(f"~/.gazebo/models/{MODEL}/model.sdf")
 if not os.path.exists(SDF):
-    SDF = f"/home/autolab/ros2_autonomous_vehicle_simulation/src/simulation_pkg/models/{MODEL}/model.sdf"
+    SDF = f"/home/autolab/VLA_simulation/src/simulation_pkg/models/{MODEL}/model.sdf"
 xml = open(SDF).read()
 lane = [(float(a), float(b)) for a, b in json.load(open(os.path.expanduser("~/track_gt_lane1_demo.json")))["centerline_world"]]
 N = len(lane)

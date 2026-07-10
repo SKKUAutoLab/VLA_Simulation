@@ -220,7 +220,7 @@ if __name__ == "__main__":
 
     # 경로 설정
     username = os.getlogin()
-    base_path = f"/home/{username}/ros2_autonomous_vehicle_simulation/src/simulation_pkg/simulation_pkg/lib"
+    base_path = f"/home/{username}/VLA_simulation/src/simulation_pkg/simulation_pkg/lib"
 
     pyc_folder = os.path.join(base_path, "pyc")
     target_file = "012_deploy_lib.py"

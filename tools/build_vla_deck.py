@@ -268,7 +268,7 @@ def table(s, rows, left, top, width, col_widths=None, header_fill=ACC,
 
 # ═══════════════════════════════════════════════════════════════════════════
 def build(prs):
-    WS = "~/ros2_autonomous_vehicle_simulation"
+    WS = "~/VLA_simulation"
     IMG = "/home/autolab"
 
     # 0. 표지
@@ -453,7 +453,7 @@ def build(prs):
 
     s = add_content(prs, "워크스페이스 구조")
     code_box(s, [
-        "~/ros2_autonomous_vehicle_simulation/",
+        "~/VLA_simulation/",
         " ├─ src/",
         " │   ├─ interfaces_pkg/        # 커스텀 메시지 (MotionCommand 등)",
         " │   ├─ camera_perception_pkg/ # 카메라·YOLOv8·차선·신호등",
@@ -470,7 +470,7 @@ def build(prs):
     s = add_content(prs, "설치 & 빌드")
     hdr(s, "① 의존성 설치 (최초 1회)", 1.4)
     code_box(s, [
-        "cd ~/ros2_autonomous_vehicle_simulation",
+        "cd ~/VLA_simulation",
         "sh install.sh                         # gazebo, ultralytics, transformers 등",
         "pip install torch transformers peft accelerate   # VLA 추가 의존성",
     ], top=1.85, size=13, height=1.2)
@@ -535,7 +535,7 @@ def build(prs):
         ("각 단계는 별도 터미널. 모든 새 터미널에서 먼저 환경 소스:", 0),
     ], 0.42, 1.35, 12.4, 4.0)
     code_box(s, [
-        "cd ~/ros2_autonomous_vehicle_simulation",
+        "cd ~/VLA_simulation",
         "source /opt/ros/humble/setup.bash && source install/local_setup.bash",
         "export DISPLAY=:1        # 헤드리스 서버인 경우",
     ], top=5.5, size=12.5, height=1.2)
@@ -667,7 +667,7 @@ def build(prs):
 
     s = add_content(prs, "[6] 학습한 모델로 자율주행")
     code_box(s, [
-        "cd ~/ros2_autonomous_vehicle_simulation",
+        "cd ~/VLA_simulation",
         "sudo killall -9 gazebo gzserver gzclient 2>/dev/null",
         "source install/setup.bash",
         "ros2 launch lora_pipeline/vla_drive.launch.py",
@@ -746,7 +746,7 @@ def build(prs):
 
     s = add_content(prs, "트러블슈팅 / 함정 노트")
     body(s, [
-        ("경로: lora_pipeline 은 ~/ros2_autonomous_vehicle_simulation/lora_pipeline (홈 직속 아님)", 0),
+        ("경로: lora_pipeline 은 ~/VLA_simulation/lora_pipeline (홈 직속 아님)", 0),
         ("teleop_sim 은 키보드 노드를 켜지 않음 → teleop_keyboard.py 별도 실행", 0),
         ("simulation_pkg 의 data_collection_node 는 소스 없음 → manual_collect.py 사용", 0),
         ("기본 주행은 LoRA가 아니라 '비전고정+spatial head'. LoRA는 VLA_USE_ADAPTER=1로 명시", 0),

@@ -19,7 +19,7 @@ import numpy as np
 import cv2
 
 IMG_W, IMG_H = 1180.0, 884.0
-TRACK_PNG = ("/home/autolab/ros2_autonomous_vehicle_simulation/src/simulation_pkg/"
+TRACK_PNG = ("/home/autolab/VLA_simulation/src/simulation_pkg/"
              "models/race_track/materials/textures/track.png")
 OUT_JSON = os.path.expanduser("~/track_features.json")
 

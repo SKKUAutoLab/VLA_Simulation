@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -e
-cd /home/autolab/ros2_autonomous_vehicle_simulation/lora_pipeline
+cd /home/autolab/VLA_simulation/lora_pipeline
 source /opt/ros/humble/setup.bash 2>/dev/null || true
-source /home/autolab/ros2_autonomous_vehicle_simulation/install/setup.bash 2>/dev/null || true
+source /home/autolab/VLA_simulation/install/setup.bash 2>/dev/null || true
 
 # 1) 주행 노드 종료(텔레포트 충돌 방지)
 for p in $(pgrep -f wp_drive_node.py); do kill -9 "$p" 2>/dev/null || true; done

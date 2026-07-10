@@ -26,7 +26,7 @@
 
 ## 학생 사용법
 ```bash
-cd ~/ros2_autonomous_vehicle_simulation
+cd ~/VLA_simulation
 bash lora_pipeline/setup_pretrained.sh            # Release에서 자동 다운로드·배치
 # 또는 로컬 zip:  bash lora_pipeline/setup_pretrained.sh ~/vla_pretrained_bundle.zip
 

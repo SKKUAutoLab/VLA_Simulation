@@ -3,8 +3,8 @@
 VLA 주행 통합 런치 — gazebo + ego + sender + drive(+brain +gui) 한 번에.
 
 실행:
-  source /opt/ros/humble/setup.bash && source ~/ros2_autonomous_vehicle_simulation/install/setup.bash
-  ros2 launch ~/ros2_autonomous_vehicle_simulation/lora_pipeline/vla_drive.launch.py
+  source /opt/ros/humble/setup.bash && source ~/VLA_simulation/install/setup.bash
+  ros2 launch ~/VLA_simulation/lora_pipeline/vla_drive.launch.py
 
 옵션(런치 인자) — 기본 전부 true:
   brain:=false    자연어/장면 브레인(Qwen3-VL) 끄기 (끄면 카메라 FPS↑, 부드러운 주행)
@@ -20,7 +20,7 @@ from launch.substitutions import LaunchConfiguration
 from launch.conditions import IfCondition
 from launch_ros.actions import Node
 
-WS = "/home/autolab/ros2_autonomous_vehicle_simulation"
+WS = "/home/autolab/VLA_simulation"
 LORA = os.path.join(WS, "lora_pipeline")
 WORLD = os.path.join(WS, "install/simulation_pkg/share/simulation_pkg/worlds/track.world")
 

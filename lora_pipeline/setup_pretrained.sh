@@ -10,7 +10,7 @@
 #       GPU가 없으면 Colab/랩 서버에서 실행하거나 데모 영상으로 결과를 확인하세요.
 # ─────────────────────────────────────────────────────────────
 set -e
-DEST="$HOME/ros2_autonomous_vehicle_simulation/lora_pipeline"
+DEST="$HOME/VLA_simulation/lora_pipeline"
 HF_REPO="${HF_REPO:-hoonsy/VLA_Simulation-pretrained}"   # HuggingFace 모델 repo
 ZIP="${1:-}"
 
@@ -41,5 +41,5 @@ fi
 echo "[2/3] 배치 완료 → $DEST"
 
 echo "[3/3] 완료. 이제 데이터 수집·학습 없이 바로 주행할 수 있습니다:"
-echo "    cd ~/ros2_autonomous_vehicle_simulation"
+echo "    cd ~/VLA_simulation"
 echo "    ros2 launch lora_pipeline/vla_drive.launch.py"

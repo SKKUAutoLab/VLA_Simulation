@@ -251,7 +251,7 @@ def feature_from_world(d: dict) -> dict:
 
 
 TRACK_PNG_PATH = (
-    "/home/autolab/ros2_autonomous_vehicle_simulation/src/simulation_pkg/"
+    "/home/autolab/VLA_simulation/src/simulation_pkg/"
     "models/race_track/materials/textures/track.png"
 )
 DEFAULT_GT_PATH = os.path.expanduser("~/track_gt_manual.json")
@@ -2813,7 +2813,7 @@ class GTAnnotator(QMainWindow):
         pts = self._get_pts()
         if not pts: QMessageBox.warning(self, "경고", "포인트 없음"); return
         world = [pixel_to_world(px, py) for px, py in pts]
-        td = "/home/autolab/ros2_autonomous_vehicle_simulation/src/mission_control_pkg/mission_control_pkg/track_data.py"
+        td = "/home/autolab/VLA_simulation/src/mission_control_pkg/mission_control_pkg/track_data.py"
         if not os.path.exists(td):
             QMessageBox.warning(self, "오류", f"파일 없음:\n{td}"); return
         with open(td) as f: content = f.read()

@@ -15,7 +15,7 @@ if [ -z "$USER_IN" ]; then
   echo "사용법: bash tools/upload_pretrained_hf.sh <HF_USERNAME>"; exit 1
 fi
 REPO="$USER_IN/VLA_Simulation-pretrained"
-LP="$HOME/ros2_autonomous_vehicle_simulation/lora_pipeline"
+LP="$HOME/VLA_simulation/lora_pipeline"
 
 pip install -q -U huggingface_hub
 python3 - "$REPO" "$LP" <<'PY'

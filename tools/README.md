@@ -9,7 +9,7 @@
 | `gt_overlay.py` | OpenCV | `track.png` 위 GT 중심선 오버레이 |
 | `gt_gui_shot.py` | PySide6 GUI | 어노테이터 창 스크린샷 (중심선 / 도로·차선 마스킹) |
 
-모든 명령은 **워크스페이스 루트**(`~/ros2_autonomous_vehicle_simulation`)에서 실행합니다.
+모든 명령은 **워크스페이스 루트**(`~/VLA_simulation`)에서 실행합니다.
 
 ## 공통 입력
 - `GT_JSON` (기본 `~/track_gt_manual.json`): `centerline_pixels`가 있으면 그대로,

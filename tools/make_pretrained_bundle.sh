@@ -3,7 +3,7 @@
 #   사용: bash tools/make_pretrained_bundle.sh
 #   출력: ~/vla_pretrained_bundle.zip
 set -e
-LP="$HOME/ros2_autonomous_vehicle_simulation/lora_pipeline"
+LP="$HOME/VLA_simulation/lora_pipeline"
 STAGE=$(mktemp -d)/vla_pretrained
 mkdir -p "$STAGE"
 

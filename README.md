@@ -26,7 +26,7 @@
 ## 1-1. 초기 환경설정
 
 ```bash
-git clone https://github.com/SKKUAutoLab/VLA_simulation
+git clone https://github.com/SKKUAutoLab/VLA_Simulation.git ~/VLA_simulation
 cd ~/VLA_simulation
 sh install.sh
 source ~/.bashrc

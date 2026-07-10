@@ -162,8 +162,8 @@ def main():
     sB = add_content(prs, ref_slide, "0단계 — 코드 받기 · 파이썬 환경 · 검증")
     hdr(sB, "① 코드 받기 (최초 1회)", 1.35)
     code_box(sB, [
-        "git clone https://github.com/SKKUAutoLab/VLA_Simulation.git ~/ros2_autonomous_vehicle_simulation",
-        "cd ~/ros2_autonomous_vehicle_simulation      # 이후 모든 명령은 이 폴더에서",
+        "git clone https://github.com/SKKUAutoLab/VLA_Simulation.git ~/VLA_simulation",
+        "cd ~/VLA_simulation      # 이후 모든 명령은 이 폴더에서",
     ], top=1.8, height=0.95, size=11.5)
     hdr(sB, "② 파이썬 환경 주의 (conda 충돌 방지)", 2.95)
     code_box(sB, [

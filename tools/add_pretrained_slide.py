@@ -96,7 +96,7 @@ def main():
     ], 0.42, 1.35, 12.4, 2.6)
     hdr(s, "학생 사용법 (데이터·학습 생략)", 3.75)
     code(s, [
-        "cd ~/ros2_autonomous_vehicle_simulation",
+        "cd ~/VLA_simulation",
         "bash lora_pipeline/setup_pretrained.sh          # Release에서 산출물 자동 설치",
         "ros2 launch lora_pipeline/vla_drive.launch.py   # 바로 주행",
     ], top=4.2, height=1.35, size=12.5)
